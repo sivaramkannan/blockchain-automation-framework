@@ -1,0 +1,43 @@
+apiVersion: helm.fluxcd.io/v1
+kind: HelmRelease
+metadata:
+  name: factor-net-ca
+  namespace: factor-net
+  annotations:
+    fluxcd.io/automated: "false"
+spec:
+  releaseName: factor-net-ca
+  chart:
+    git: git@github.com:sivaramkannan/blockchain-automation-framework.git
+    ref: bankema-staging
+    path: platforms/hyperledger-fabric/charts/ca    
+  values:
+    metadata:
+      namespace: factor-net
+      images:
+        alpineutils: index.docker.io/hyperledgerlabs/alpine-utils:1.0
+        ca: hyperledger/fabric-ca:1.4.8
+    server:
+      name: ca
+      tlsstatus: true
+      admin: factor-admin
+    storage:
+      storageclassname: factorsc
+      storagesize: 512Mi
+    vault:
+      role: vault-role
+      address: http://bankemastaging.westeurope.cloudapp.azure.com:8200
+      authpath: factor-net-auth
+      secretcert: secret/crypto/peerOrganizations/factor-net/ca?ca.factor-net-cert.pem
+      secretkey: secret/crypto/peerOrganizations/factor-net/ca?factor-net-CA.key
+      secretadminpass: secret/credentials/factor-net/ca/factor?user
+      serviceaccountname: vault-auth
+      imagesecretname: regcred
+    service:
+      servicetype: ClusterIP
+      ports:
+        tcp:
+          port: 7054
+    proxy:
+      provider: haproxy
+      type: peer
