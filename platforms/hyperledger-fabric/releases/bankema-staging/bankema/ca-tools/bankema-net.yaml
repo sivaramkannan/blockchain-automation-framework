@@ -1,0 +1,28 @@
+apiVersion: helm.fluxcd.io/v1
+kind: HelmRelease
+metadata:
+  name: bankema-net-ca-tools
+  namespace: bankema-net
+  annotations:
+    fluxcd.io/automated: "false"
+spec:
+  releaseName: bankema-net-ca-tools
+  chart:
+    git: git@github.com:sivaramkannan/blockchain-automation-framework.git
+    ref: bankema-staging
+    path: platforms/hyperledger-fabric/charts/catools
+  values:
+    metadata:
+      namespace: bankema-net
+      name: ca-tools
+
+    replicaCount: 1
+
+    image:
+      repository: hyperledger/fabric-ca-tools
+      tag: 1.2.1
+      pullPolicy: IfNotPresent
+      
+    storage:
+      storageclassname: bankemasc
+      storagesize: 512Mi
