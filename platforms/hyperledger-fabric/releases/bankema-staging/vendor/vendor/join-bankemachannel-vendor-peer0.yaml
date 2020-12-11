@@ -1,0 +1,41 @@
+apiVersion: helm.fluxcd.io/v1
+kind: HelmRelease
+metadata:
+  name: joinchannel-peer0-join-bankemachannel-vendor-peer0
+  namespace: vendor-net
+  annotations:
+    fluxcd.io/automated: "false"
+spec:
+  releaseName: joinchannel-peer0-join-bankemachannel-vendor-peer0
+  chart:
+    git: git@github.com:sivaramkannan/blockchain-automation-framework.git
+    ref: bankema-staging
+    path: platforms/hyperledger-fabric/charts/join_channel
+  values:
+    metadata:
+      namespace: vendor-net
+      images:
+        fabrictools: hyperledger/fabric-tools:2.2.0
+        alpineutils: index.docker.io/hyperledgerlabs/alpine-utils:1.0
+
+    peer:
+      name: peer0
+      address: peer0.vendor-net:7051
+      localmspid: vendorMSP
+      loglevel: debug
+      tlsstatus: true
+
+    vault:
+      role: vault-role
+      address: http://bankemastaging.westeurope.cloudapp.azure.com:8200
+      authpath: vendor-net-auth
+      adminsecretprefix: secret/crypto/peerOrganizations/vendor-net/users/admin
+      orderersecretprefix: secret/crypto/peerOrganizations/vendor-net/orderer
+      serviceaccountname: vault-auth
+      imagesecretname: regcred
+
+    channel:
+      name: bankemachannel      
+    orderer:
+      address: orderer1.ordorg-net:7050
+
