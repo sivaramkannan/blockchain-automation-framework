@@ -1,0 +1,63 @@
+apiVersion: helm.fluxcd.io/v1
+kind: HelmRelease
+metadata:
+  name: bankema-peer0
+  namespace: bankema-net
+  annotations:
+    fluxcd.io/automated: "false"
+spec:
+  releaseName: bankema-peer0
+  chart:
+    git: git@github.com:sivaramkannan/blockchain-automation-framework.git
+    ref: bankema-customer-staging
+    path: platforms/hyperledger-fabric/charts/peernode    
+  values:
+    metadata:
+      namespace: bankema-net
+      images:
+        couchdb: hyperledger/fabric-couchdb:0.4.18
+        peer: hyperledger/fabric-peer:2.2.0
+        alpineutils: index.docker.io/hyperledgerlabs/alpine-utils:1.0
+        
+    peer:
+      name: peer0
+      gossippeeraddress: peer0.bankema-net:7051
+      gossipexternalendpoint: peer0.bankema-net.bankema-net.staging.bankema.emulya.com:8443
+      localmspid: bankemaMSP
+      loglevel: info
+      tlsstatus: true
+      builder: hyperledger/fabric-ccenv:2.2.0
+      couchdb:
+        username: bankema-user
+
+    storage:
+      peer:
+        storageclassname: bankemasc
+        storagesize: 10Gi
+      couchdb:
+        storageclassname: bankemasc
+        storagesize: 20Gi
+
+    vault:
+      role: vault-role
+      address: http://bankema-staging-vault.westeurope.cloudapp.azure.com:8200
+      authpath: bankema-net-auth
+      secretprefix: secret/crypto/peerOrganizations/bankema-net/peers/peer0.bankema-net
+      secretambassador: secret/crypto/peerOrganizations/bankema-net/ambassador
+      serviceaccountname: vault-auth
+      imagesecretname: regcred
+      secretcouchdbpass: secret/credentials/bankema-net/couchdb/bankema?user
+
+    service:
+      servicetype: ClusterIP
+      ports:
+        grpc:
+          clusteripport: 7051
+        events:
+          clusteripport: 7053
+        couchdb:
+          clusteripport: 5984
+          
+    proxy:
+      provider: haproxy
+      external_url_suffix: bankema-net.staging.bankema.emulya.com
