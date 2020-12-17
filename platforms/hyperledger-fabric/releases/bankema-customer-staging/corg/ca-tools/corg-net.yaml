@@ -1,0 +1,28 @@
+apiVersion: helm.fluxcd.io/v1
+kind: HelmRelease
+metadata:
+  name: corg-net-ca-tools
+  namespace: corg-net
+  annotations:
+    fluxcd.io/automated: "false"
+spec:
+  releaseName: corg-net-ca-tools
+  chart:
+    git: git@github.com:sivaramkannan/blockchain-automation-framework.git
+    ref: bankema-customer-staging
+    path: platforms/hyperledger-fabric/charts/catools
+  values:
+    metadata:
+      namespace: corg-net
+      name: ca-tools
+
+    replicaCount: 1
+
+    image:
+      repository: hyperledger/fabric-ca-tools
+      tag: 1.2.1
+      pullPolicy: IfNotPresent
+      
+    storage:
+      storageclassname: corgsc
+      storagesize: 512Mi
