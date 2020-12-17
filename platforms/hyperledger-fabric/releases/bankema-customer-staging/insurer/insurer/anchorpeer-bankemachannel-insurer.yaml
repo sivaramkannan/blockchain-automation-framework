@@ -1,0 +1,49 @@
+apiVersion: helm.fluxcd.io/v1
+kind: HelmRelease
+metadata:
+  name: anchorpeer-bankemachannel-insurer
+  namespace: insurer-net
+  annotations:
+    fluxcd.io/automated: "false"
+spec:
+  releaseName: anchorpeer-bankemachannel-insurer
+  chart:
+    git: git@github.com:sivaramkannan/blockchain-automation-framework.git
+    ref: bankema-customer-staging
+    path: platforms/hyperledger-fabric/charts/anchorpeer
+  values:
+    metadata:
+      namespace: insurer-net
+      images:
+        fabrictools: hyperledger/fabric-tools:2.2.0
+        alpineutils: index.docker.io/hyperledgerlabs/alpine-utils:1.0
+
+    peer:
+      name: peer0
+      address: peer0.insurer-net:7051
+      localmspid: insurerMSP
+      loglevel: debug
+      tlsstatus: true
+
+    vault:
+      role: vault-role
+      address: http://bankema-staging-vault.westeurope.cloudapp.azure.com:8200
+      authpath: insurer-net-auth
+      adminsecretprefix: secret/crypto/peerOrganizations/insurer-net/users/admin
+      orderersecretprefix: secret/crypto/peerOrganizations/insurer-net/orderer
+      serviceaccountname: vault-auth
+      imagesecretname: regcred
+
+    channel:
+      name: bankemachannel      
+    orderer:
+      address: orderer1.ordorg-net:7050
+    anchorstx: |-
+      CucCChwKGggCGgYI9YXt/gUiDmJhbmtlbWFjaGFubmVsEsYCCsMCCg5iYW5rZW1hY2hhbm5lbBJj
+      EmEKC0FwcGxpY2F0aW9uElIIARJOCgppbnN1cmVyTVNQEkAaBwoDTVNQEgAiCgoGQWRtaW5zEgAi
+      DwoLRW5kb3JzZW1lbnQSACILCgdSZWFkZXJzEgAiCwoHV3JpdGVycxIAGssBEsgBCgtBcHBsaWNh
+      dGlvbhK4AQgBErMBCgppbnN1cmVyTVNQEqQBCAEaWAoLQW5jaG9yUGVlcnMSSRI/Cj0KOHBlZXIw
+      Lmluc3VyZXItbmV0Lmluc3VyZXItbmV0LnN0YWdpbmcuYmFua2VtYS5lbXVseWEuY29tEPtBGgZB
+      ZG1pbnMaBwoDTVNQEgAiCgoGQWRtaW5zEgAiDwoLRW5kb3JzZW1lbnQSACILCgdSZWFkZXJzEgAi
+      CwoHV3JpdGVycxIAKgZBZG1pbnM=
+
