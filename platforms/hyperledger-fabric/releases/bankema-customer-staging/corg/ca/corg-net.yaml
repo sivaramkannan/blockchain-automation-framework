@@ -1,0 +1,43 @@
+apiVersion: helm.fluxcd.io/v1
+kind: HelmRelease
+metadata:
+  name: corg-net-ca
+  namespace: corg-net
+  annotations:
+    fluxcd.io/automated: "false"
+spec:
+  releaseName: corg-net-ca
+  chart:
+    git: git@github.com:sivaramkannan/blockchain-automation-framework.git
+    ref: bankema-customer-staging
+    path: platforms/hyperledger-fabric/charts/ca    
+  values:
+    metadata:
+      namespace: corg-net
+      images:
+        alpineutils: index.docker.io/hyperledgerlabs/alpine-utils:1.0
+        ca: hyperledger/fabric-ca:1.4.8
+    server:
+      name: ca
+      tlsstatus: true
+      admin: corg-admin
+    storage:
+      storageclassname: corgsc
+      storagesize: 512Mi
+    vault:
+      role: vault-role
+      address: http://bankema-staging-vault.westeurope.cloudapp.azure.com:8200
+      authpath: corg-net-auth
+      secretcert: secret/crypto/peerOrganizations/corg-net/ca?ca.corg-net-cert.pem
+      secretkey: secret/crypto/peerOrganizations/corg-net/ca?corg-net-CA.key
+      secretadminpass: secret/credentials/corg-net/ca/corg?user
+      serviceaccountname: vault-auth
+      imagesecretname: regcred
+    service:
+      servicetype: ClusterIP
+      ports:
+        tcp:
+          port: 7054
+    proxy:
+      provider: haproxy
+      type: peer
