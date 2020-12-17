@@ -1,0 +1,44 @@
+apiVersion: helm.fluxcd.io/v1
+kind: HelmRelease
+metadata:
+  name: approve-vendor-bankemachannel-fabcar1
+  namespace: vendor-net
+  annotations:
+    fluxcd.io/automated: "false"
+spec:
+  releaseName: approve-vendor-bankemachannel-fabcar1
+  chart:
+    git: git@github.com:sivaramkannan/blockchain-automation-framework.git
+    ref: bankema-customer-staging
+    path: platforms/hyperledger-fabric/charts/approve_chaincode
+  values:
+    metadata:
+      namespace: vendor-net
+      images:
+        fabrictools: hyperledger/fabric-tools:2.2.0
+        alpineutils: index.docker.io/hyperledgerlabs/alpine-utils:1.0
+    peer:
+      name: peer0
+      address: peer0.vendor-net:7051
+      localmspid: vendorMSP
+      loglevel: debug
+      tlsstatus: true
+    vault:
+      role: vault-role
+      address: http://bankema-staging-vault.westeurope.cloudapp.azure.com:8200
+      authpath: vendor-net-auth
+      adminsecretprefix: secret/crypto/peerOrganizations/vendor-net/users/admin 
+      orderersecretprefix: secret/crypto/peerOrganizations/vendor-net/orderer
+      serviceaccountname: vault-auth
+      imagesecretname: regcred
+      tls: false
+    orderer:
+      address: orderer1.intain-net:7050
+    chaincode:
+      builder: hyperledger/fabric-ccenv:2.2.0
+      name: fabcar
+      version: 1
+      commitarguments: '{Make: "Toyota", Model: "Prius", Colour: "blue", Owner: "Tomoko"}'
+      endorsementpolicies:  ''
+    channel:
+      name: bankemachannel
