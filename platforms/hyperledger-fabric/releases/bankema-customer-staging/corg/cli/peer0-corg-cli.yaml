@@ -1,0 +1,38 @@
+apiVersion: helm.fluxcd.io/v1
+kind: HelmRelease
+metadata:
+  name: peer0-corg-cli
+  namespace: corg-net
+  annotations:
+    fluxcd.io/automated: "false"
+spec:
+  releaseName: peer0-corg-cli
+  chart:
+    git: git@github.com:sivaramkannan/blockchain-automation-framework.git
+    ref: bankema-customer-staging
+    path: platforms/hyperledger-fabric/charts/fabric_cli    
+  values:
+    metadata:
+      namespace: corg-net
+      images:
+        fabrictools: hyperledger/fabric-tools:2.2.0
+        alpineutils: index.docker.io/hyperledgerlabs/alpine-utils:1.0
+    storage:
+      class: corgsc
+      size: 256Mi
+    vault:
+      role: vault-role
+      address: http://bankema-staging-vault.westeurope.cloudapp.azure.com:8200
+      authpath: corg-net-auth
+      adminsecretprefix: secret/crypto/peerOrganizations/corg-net/users/admin
+      orderersecretprefix: secret/crypto/peerOrganizations/corg-net/orderer
+      serviceaccountname: vault-auth
+      imagesecretname: regcred
+      tls: false
+    peer:
+      name: peer0
+      localmspid: corgMSP
+      tlsstatus: true
+      address: peer0.corg-net:7051
+    orderer:
+      address: orderer1.intain-net:7050
