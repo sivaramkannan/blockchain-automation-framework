@@ -1,0 +1,63 @@
+apiVersion: helm.fluxcd.io/v1
+kind: HelmRelease
+metadata:
+  name: insurer-peer0
+  namespace: insurer-net
+  annotations:
+    fluxcd.io/automated: "false"
+spec:
+  releaseName: insurer-peer0
+  chart:
+    git: git@github.com:sivaramkannan/blockchain-automation-framework.git
+    ref: bankema-customer-staging
+    path: platforms/hyperledger-fabric/charts/peernode    
+  values:
+    metadata:
+      namespace: insurer-net
+      images:
+        couchdb: hyperledger/fabric-couchdb:0.4.18
+        peer: hyperledger/fabric-peer:2.2.0
+        alpineutils: index.docker.io/hyperledgerlabs/alpine-utils:1.0
+        
+    peer:
+      name: peer0
+      gossippeeraddress: peer0.insurer-net:7051
+      gossipexternalendpoint: peer0.insurer-net.insurer-net.staging.bankema.emulya.com:8443
+      localmspid: insurerMSP
+      loglevel: info
+      tlsstatus: true
+      builder: hyperledger/fabric-ccenv:2.2.0
+      couchdb:
+        username: insurer-user
+
+    storage:
+      peer:
+        storageclassname: insurersc
+        storagesize: 10Gi
+      couchdb:
+        storageclassname: insurersc
+        storagesize: 20Gi
+
+    vault:
+      role: vault-role
+      address: http://bankema-staging-vault.westeurope.cloudapp.azure.com:8200
+      authpath: insurer-net-auth
+      secretprefix: secret/crypto/peerOrganizations/insurer-net/peers/peer0.insurer-net
+      secretambassador: secret/crypto/peerOrganizations/insurer-net/ambassador
+      serviceaccountname: vault-auth
+      imagesecretname: regcred
+      secretcouchdbpass: secret/credentials/insurer-net/couchdb/insurer?user
+
+    service:
+      servicetype: ClusterIP
+      ports:
+        grpc:
+          clusteripport: 7051
+        events:
+          clusteripport: 7053
+        couchdb:
+          clusteripport: 5984
+          
+    proxy:
+      provider: haproxy
+      external_url_suffix: insurer-net.staging.bankema.emulya.com
