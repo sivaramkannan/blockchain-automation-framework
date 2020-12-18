@@ -1,0 +1,43 @@
+apiVersion: helm.fluxcd.io/v1
+kind: HelmRelease
+metadata:
+  name: vendor-net-ca
+  namespace: vendor-net
+  annotations:
+    fluxcd.io/automated: "false"
+spec:
+  releaseName: vendor-net-ca
+  chart:
+    git: git@github.com:sivaramkannan/blockchain-automation-framework.git
+    ref: bankema-customer-staging
+    path: platforms/hyperledger-fabric/charts/ca    
+  values:
+    metadata:
+      namespace: vendor-net
+      images:
+        alpineutils: index.docker.io/hyperledgerlabs/alpine-utils:1.0
+        ca: hyperledger/fabric-ca:1.4.8
+    server:
+      name: ca
+      tlsstatus: true
+      admin: vendor-admin
+    storage:
+      storageclassname: vendorsc
+      storagesize: 512Mi
+    vault:
+      role: vault-role
+      address: http://bankema-staging-vault.westeurope.cloudapp.azure.com:8200
+      authpath: vendor-net-auth
+      secretcert: secret/crypto/peerOrganizations/vendor-net/ca?ca.vendor-net-cert.pem
+      secretkey: secret/crypto/peerOrganizations/vendor-net/ca?vendor-net-CA.key
+      secretadminpass: secret/credentials/vendor-net/ca/vendor?user
+      serviceaccountname: vault-auth
+      imagesecretname: regcred
+    service:
+      servicetype: ClusterIP
+      ports:
+        tcp:
+          port: 7054
+    proxy:
+      provider: haproxy
+      type: peer
