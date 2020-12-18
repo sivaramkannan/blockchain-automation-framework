@@ -1,0 +1,53 @@
+apiVersion: helm.fluxcd.io/v1
+kind: HelmRelease
+metadata:
+  name: channel-bankema-bankemachannel
+  namespace: bankema-net
+  annotations:
+    fluxcd.io/automated: "false"
+spec:
+  releaseName: channel-bankema-bankemachannel
+  chart:
+    git: git@github.com:sivaramkannan/blockchain-automation-framework.git
+    ref: bankema-customer-staging
+    path: platforms/hyperledger-fabric/charts/create_channel   
+  values:
+    metadata:
+      namespace: bankema-net
+      network:
+        version 2.2.0
+      images:
+        fabrictools: hyperledger/fabric-tools:2.2.0
+        alpineutils: index.docker.io/hyperledgerlabs/alpine-utils:1.0
+    peer:
+      name: peer0
+      address: peer0.bankema-net:7051
+      localmspid: bankemaMSP
+      loglevel: debug
+      tlsstatus: true
+
+    vault:
+      role: vault-role
+      address: http://bankema-staging-vault.westeurope.cloudapp.azure.com:8200
+      authpath: bankema-net-auth
+      adminsecretprefix: secret/crypto/peerOrganizations/bankema-net/users/admin
+      orderersecretprefix: secret/crypto/peerOrganizations/bankema-net/orderer 
+      serviceaccountname: vault-auth
+      imagesecretname: regcred
+
+    channel:
+      name: bankemachannel
+    orderer:
+      address: orderer1.intain-net:7050
+    channeltx: |-
+      CscEChwKGggCGgYIm97x/gUiDmJhbmtlbWFjaGFubmVsEqYECqMECg5iYW5rZW1hY2hhbm5lbBJ9
+      EmsKC0FwcGxpY2F0aW9uElwSDwoLaW52ZXN0b3JNU1ASABINCgl2ZW5kb3JNU1ASABINCglmYWN0
+      b3JNU1ASABILCgdjb3JnTVNQEgASDgoKaW5zdXJlck1TUBIAEg4KCmJhbmtlbWFNU1ASABoOCgpD
+      b25zb3J0aXVtEgAakQMS6QIKC0FwcGxpY2F0aW9uEtkCCAESDQoJdmVuZG9yTVNQEgASDQoJZmFj
+      dG9yTVNQEgASCwoHY29yZ01TUBIAEg4KCmluc3VyZXJNU1ASABIOCgpiYW5rZW1hTVNQEgASDwoL
+      aW52ZXN0b3JNU1ASABokCgxDYXBhYmlsaXRpZXMSFBIKCggKBFYyXzASABoGQWRtaW5zIjMKFExp
+      ZmVjeWNsZUVuZG9yc2VtZW50EhsSEQgDEg0KC0VuZG9yc2VtZW50GgZBZG1pbnMiIgoHUmVhZGVy
+      cxIXEg0IAxIJCgdSZWFkZXJzGgZBZG1pbnMiIgoHV3JpdGVycxIXEg0IAxIJCgdXcml0ZXJzGgZB
+      ZG1pbnMiIgoGQWRtaW5zEhgSDggDEgoKBkFkbWlucxACGgZBZG1pbnMiKgoLRW5kb3JzZW1lbnQS
+      GxIRCAMSDQoLRW5kb3JzZW1lbnQaBkFkbWlucyoGQWRtaW5zGiMKCkNvbnNvcnRpdW0SFRITChFC
+      YW5rZW1hQ29uc29ydGl1bQ==
