@@ -1,0 +1,49 @@
+apiVersion: helm.fluxcd.io/v1
+kind: HelmRelease
+metadata:
+  name: anchorpeer-bankemachannel-bankema
+  namespace: bankema-net
+  annotations:
+    fluxcd.io/automated: "false"
+spec:
+  releaseName: anchorpeer-bankemachannel-bankema
+  chart:
+    git: git@github.com:sivaramkannan/blockchain-automation-framework.git
+    ref: bankema-customer-staging
+    path: platforms/hyperledger-fabric/charts/anchorpeer
+  values:
+    metadata:
+      namespace: bankema-net
+      images:
+        fabrictools: hyperledger/fabric-tools:2.2.0
+        alpineutils: index.docker.io/hyperledgerlabs/alpine-utils:1.0
+
+    peer:
+      name: peer0
+      address: peer0.bankema-net:7051
+      localmspid: bankemaMSP
+      loglevel: debug
+      tlsstatus: true
+
+    vault:
+      role: vault-role
+      address: http://bankema-staging-vault.westeurope.cloudapp.azure.com:8200
+      authpath: bankema-net-auth
+      adminsecretprefix: secret/crypto/peerOrganizations/bankema-net/users/admin
+      orderersecretprefix: secret/crypto/peerOrganizations/bankema-net/orderer
+      serviceaccountname: vault-auth
+      imagesecretname: regcred
+
+    channel:
+      name: bankemachannel      
+    orderer:
+      address: orderer1.intain-net:7050
+    anchorstx: |-
+      CucCChwKGggCGgYInN7x/gUiDmJhbmtlbWFjaGFubmVsEsYCCsMCCg5iYW5rZW1hY2hhbm5lbBJj
+      EmEKC0FwcGxpY2F0aW9uElIIARJOCgpiYW5rZW1hTVNQEkAaBwoDTVNQEgAiCgoGQWRtaW5zEgAi
+      DwoLRW5kb3JzZW1lbnQSACILCgdSZWFkZXJzEgAiCwoHV3JpdGVycxIAGssBEsgBCgtBcHBsaWNh
+      dGlvbhK4AQgBErMBCgpiYW5rZW1hTVNQEqQBCAEaWAoLQW5jaG9yUGVlcnMSSRI/Cj0KOHBlZXIw
+      LmJhbmtlbWEtbmV0LmJhbmtlbWEtbmV0LnN0YWdpbmcuYmFua2VtYS5lbXVseWEuY29tEPtBGgZB
+      ZG1pbnMaBwoDTVNQEgAiCwoHUmVhZGVycxIAIgsKB1dyaXRlcnMSACIKCgZBZG1pbnMSACIPCgtF
+      bmRvcnNlbWVudBIAKgZBZG1pbnM=
+
