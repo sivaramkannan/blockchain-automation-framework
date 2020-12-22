@@ -1,0 +1,49 @@
+apiVersion: helm.fluxcd.io/v1
+kind: HelmRelease
+metadata:
+  name: anchorpeer-umbchannel-servicer
+  namespace: servicer-net
+  annotations:
+    fluxcd.io/automated: "false"
+spec:
+  releaseName: anchorpeer-umbchannel-servicer
+  chart:
+    git: git@github.com:sivaramkannan/blockchain-automation-framework.git
+    ref: umb-staging
+    path: platforms/hyperledger-fabric/charts/anchorpeer
+  values:
+    metadata:
+      namespace: servicer-net
+      images:
+        fabrictools: hyperledger/fabric-tools:2.2.0
+        alpineutils: index.docker.io/hyperledgerlabs/alpine-utils:1.0
+
+    peer:
+      name: peer0
+      address: peer0.servicer-net:7051
+      localmspid: servicerMSP
+      loglevel: debug
+      tlsstatus: true
+
+    vault:
+      role: vault-role
+      address: http://umb-staging.eastus.cloudapp.azure.com:8200
+      authpath: servicer-net-auth
+      adminsecretprefix: secret/crypto/peerOrganizations/servicer-net/users/admin
+      orderersecretprefix: secret/crypto/peerOrganizations/servicer-net/orderer
+      serviceaccountname: vault-auth
+      imagesecretname: regcred
+
+    channel:
+      name: umbchannel      
+    orderer:
+      address: orderer1.intain-net:7050
+    anchorstx: |-
+      Ct8CChgKFggCGgYIre+H/wUiCnVtYmNoYW5uZWwSwgIKvwIKCnVtYmNoYW5uZWwSZBJiCgtBcHBs
+      aWNhdGlvbhJTCAESTwoLc2VydmljZXJNU1ASQBoHCgNNU1ASACILCgdXcml0ZXJzEgAiCgoGQWRt
+      aW5zEgAiDwoLRW5kb3JzZW1lbnQSACILCgdSZWFkZXJzEgAaygESxwEKC0FwcGxpY2F0aW9uErcB
+      CAESsgEKC3NlcnZpY2VyTVNQEqIBCAEaBwoDTVNQEgAaVgoLQW5jaG9yUGVlcnMSRxI9CjsKNnBl
+      ZXIwLnNlcnZpY2VyLW5ldC5zZXJ2aWNlci1uZXQuc3RhZ2luZy51bWIuZW11bHlhLmNvbRD7QRoG
+      QWRtaW5zIgsKB1dyaXRlcnMSACIKCgZBZG1pbnMSACIPCgtFbmRvcnNlbWVudBIAIgsKB1JlYWRl
+      cnMSACoGQWRtaW5z
+
