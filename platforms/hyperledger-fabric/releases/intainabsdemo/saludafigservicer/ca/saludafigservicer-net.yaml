@@ -1,0 +1,43 @@
+apiVersion: helm.fluxcd.io/v1
+kind: HelmRelease
+metadata:
+  name: saludafigservicer-net-ca
+  namespace: saludafigservicer-net
+  annotations:
+    fluxcd.io/automated: "false"
+spec:
+  releaseName: saludafigservicer-net-ca
+  chart:
+    git: git@github.com:sivaramkannan/blockchain-automation-framework.git
+    ref: intainabsdemo
+    path: platforms/hyperledger-fabric/charts/ca    
+  values:
+    metadata:
+      namespace: saludafigservicer-net
+      images:
+        alpineutils: index.docker.io/hyperledgerlabs/alpine-utils:1.0
+        ca: hyperledger/fabric-ca:1.4.8
+    server:
+      name: ca
+      tlsstatus: true
+      admin: saludafigservicer-admin
+    storage:
+      storageclassname: saludafigservicersc
+      storagesize: 1Gi
+    vault:
+      role: vault-role
+      address: http://159.89.141.74:8200
+      authpath: saludafigservicer-net-auth
+      secretcert: secret/crypto/peerOrganizations/saludafigservicer-net/ca?ca.saludafigservicer-net-cert.pem
+      secretkey: secret/crypto/peerOrganizations/saludafigservicer-net/ca?saludafigservicer-net-CA.key
+      secretadminpass: secret/credentials/saludafigservicer-net/ca/saludafigservicer?user
+      serviceaccountname: vault-auth
+      imagesecretname: regcred
+    service:
+      servicetype: ClusterIP
+      ports:
+        tcp:
+          port: 7054
+    proxy:
+      provider: haproxy
+      type: peer
