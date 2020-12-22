@@ -1,0 +1,52 @@
+apiVersion: helm.fluxcd.io/v1
+kind: HelmRelease
+metadata:
+  name: chaincode-install-servicer-peer0-1
+  namespace: servicer-net
+  annotations:
+    fluxcd.io/automated: "false"
+spec:
+  releaseName: chaincode-install-servicer-peer0-1
+  chart:
+    git: git@github.com:sivaramkannan/blockchain-automation-framework.git
+    ref: umb-staging
+    path: platforms/hyperledger-fabric/charts/install_chaincode
+  values:
+    metadata:
+      namespace: servicer-net
+      network:
+        version: 2.2.0
+      images:
+        fabrictools: hyperledger/fabric-tools:2.2.0
+        alpineutils: index.docker.io/hyperledgerlabs/alpine-utils:1.0
+    peer:
+      name: peer0
+      address: peer0.servicer-net:7051
+      localmspid: servicerMSP
+      loglevel: debug
+      tlsstatus: true
+    vault:
+      role: vault-role
+      address: http://umb-staging.eastus.cloudapp.azure.com:8200
+      authpath: servicer-net-auth
+      adminsecretprefix: secret/crypto/peerOrganizations/servicer-net/users/admin 
+      orderersecretprefix: secret/crypto/peerOrganizations/servicer-net/orderer
+      serviceaccountname: vault-auth
+      imagesecretname: regcred
+      secretgitprivatekey: secret/credentials/servicer-net/git?git_password
+      tls: false
+    orderer:
+      address: orderer1.intain-net:7050
+    chaincode:
+      builder: hyperledger/fabric-ccenv:2.2.0
+      name: fabcar
+      version: 1
+      lang: golang
+      maindirectory: fabric-sample/chaincode
+      repository:
+        hostname: "git@github.com:sivaramsk"
+        git_username: "sivaramsk"
+        url: git@github.com:sivaramsk/fabric-samples.git
+        branch: develop
+        path: fabcar/go/
+      endorsementpolicies:  ''
