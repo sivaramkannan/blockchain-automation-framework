@@ -1,0 +1,63 @@
+apiVersion: helm.fluxcd.io/v1
+kind: HelmRelease
+metadata:
+  name: servicer-peer0
+  namespace: servicer-net
+  annotations:
+    fluxcd.io/automated: "false"
+spec:
+  releaseName: servicer-peer0
+  chart:
+    git: git@github.com:sivaramkannan/blockchain-automation-framework.git
+    ref: umb-staging
+    path: platforms/hyperledger-fabric/charts/peernode    
+  values:
+    metadata:
+      namespace: servicer-net
+      images:
+        couchdb: couchdb:3.1
+        peer: hyperledger/fabric-peer:2.2.0
+        alpineutils: index.docker.io/hyperledgerlabs/alpine-utils:1.0
+        
+    peer:
+      name: peer0
+      gossippeeraddress: peer0.servicer-net:7051
+      gossipexternalendpoint: peer0.servicer-net.servicer-net.staging.umb.emulya.com:8443
+      localmspid: servicerMSP
+      loglevel: info
+      tlsstatus: true
+      builder: hyperledger/fabric-ccenv:2.2.0
+      couchdb:
+        username: servicer-user
+
+    storage:
+      peer:
+        storageclassname: servicersc
+        storagesize: 10Gi
+      couchdb:
+        storageclassname: servicersc
+        storagesize: 10Gi
+
+    vault:
+      role: vault-role
+      address: http://umb-staging.eastus.cloudapp.azure.com:8200
+      authpath: servicer-net-auth
+      secretprefix: secret/crypto/peerOrganizations/servicer-net/peers/peer0.servicer-net
+      secretambassador: secret/crypto/peerOrganizations/servicer-net/ambassador
+      serviceaccountname: vault-auth
+      imagesecretname: regcred
+      secretcouchdbpass: secret/credentials/servicer-net/couchdb/servicer?user
+
+    service:
+      servicetype: ClusterIP
+      ports:
+        grpc:
+          clusteripport: 7051
+        events:
+          clusteripport: 7053
+        couchdb:
+          clusteripport: 5984
+          
+    proxy:
+      provider: haproxy
+      external_url_suffix: servicer-net.staging.umb.emulya.com
