@@ -1,0 +1,49 @@
+apiVersion: helm.fluxcd.io/v1
+kind: HelmRelease
+metadata:
+  name: anchorpeer-wsfschannel-originator
+  namespace: originator-net
+  annotations:
+    fluxcd.io/automated: "false"
+spec:
+  releaseName: anchorpeer-wsfschannel-originator
+  chart:
+    git: git@github.com:sivaramkannan/blockchain-automation-framework.git
+    ref: intainabsdemo
+    path: platforms/hyperledger-fabric/charts/anchorpeer
+  values:
+    metadata:
+      namespace: originator-net
+      images:
+        fabrictools: hyperledger/fabric-tools:2.2.0
+        alpineutils: index.docker.io/hyperledgerlabs/alpine-utils:1.0
+
+    peer:
+      name: peer0
+      address: peer0.originator-net:7051
+      localmspid: originatorMSP
+      loglevel: debug
+      tlsstatus: true
+
+    vault:
+      role: vault-role
+      address: http://159.89.141.74:8200
+      authpath: originator-net-auth
+      adminsecretprefix: secret/crypto/peerOrganizations/originator-net/users/admin
+      orderersecretprefix: secret/crypto/peerOrganizations/originator-net/orderer
+      serviceaccountname: vault-auth
+      imagesecretname: regcred
+
+    channel:
+      name: wsfschannel      
+    orderer:
+      address: orderer1.intain-net:7050
+    anchorstx: |-
+      Cu8CChkKFwgCGgYIy8aL/wUiC3dzZnNjaGFubmVsEtECCs4CCgt3c2ZzY2hhbm5lbBJmEmQKC0Fw
+      cGxpY2F0aW9uElUIARJRCg1vcmlnaW5hdG9yTVNQEkAaBwoDTVNQEgAiCwoHV3JpdGVycxIAIgoK
+      BkFkbWlucxIAIg8KC0VuZG9yc2VtZW50EgAiCwoHUmVhZGVycxIAGtYBEtMBCgtBcHBsaWNhdGlv
+      bhLDAQgBEr4BCg1vcmlnaW5hdG9yTVNQEqwBCAEaYAoLQW5jaG9yUGVlcnMSURJHCkUKQHBlZXIw
+      Lm9yaWdpbmF0b3ItbmV0Lm9yaWdpbmF0b3Iuc3RhZ2luZy5pbnRhaW5hYnNkZW1vLmVtdWx5YS5j
+      b20Q+0EaBkFkbWlucxoHCgNNU1ASACILCgdSZWFkZXJzEgAiCwoHV3JpdGVycxIAIgoKBkFkbWlu
+      cxIAIg8KC0VuZG9yc2VtZW50EgAqBkFkbWlucw==
+
