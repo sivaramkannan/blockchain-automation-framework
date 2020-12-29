@@ -1,8 +1,0 @@
-allowVolumeExpansion: true
-apiVersion: storage.k8s.io/v1
-kind: StorageClass
-metadata:
-  name: digitalocean-sc 
-provisioner: kubernetes.io/dobs.csi.digitalocean.com
-reclaimPolicy: Delete
-volumeBindingMode: Immediate
