@@ -1,0 +1,48 @@
+apiVersion: helm.fluxcd.io/v1
+kind: HelmRelease
+metadata:
+  name: anchorpeer-allchannel-org2
+  namespace: org2-net
+  annotations:
+    fluxcd.io/automated: "false"
+spec:
+  releaseName: anchorpeer-allchannel-org2
+  chart:
+    git: git@github.com:sivaramkannan/blockchain-automation-framework.git
+    ref: intainabsdemo
+    path: platforms/hyperledger-fabric/charts/anchorpeer
+  values:
+    metadata:
+      namespace: org2-net
+      images:
+        fabrictools: hyperledger/fabric-tools:2.2.0
+        alpineutils: index.docker.io/hyperledgerlabs/alpine-utils:1.0
+
+    peer:
+      name: peer0
+      address: peer0.org2-net:7051
+      localmspid: org2MSP
+      loglevel: debug
+      tlsstatus: true
+
+    vault:
+      role: vault-role
+      address: http://159.89.141.74:8200
+      authpath: org2-net-auth
+      adminsecretprefix: secret/crypto/peerOrganizations/org2-net/users/admin
+      orderersecretprefix: secret/crypto/peerOrganizations/org2-net/orderer
+      serviceaccountname: vault-auth
+      imagesecretname: regcred
+
+    channel:
+      name: allchannel      
+    orderer:
+      address: orderer1.ordorg-net:7050
+    anchorstx: |-
+      CtMCChgKFggCGgYI5KWw/wUiCmFsbGNoYW5uZWwStgIKswIKCmFsbGNoYW5uZWwSYBJeCgtBcHBs
+      aWNhdGlvbhJPCAESSwoHb3JnMk1TUBJAGgcKA01TUBIAIg8KC0VuZG9yc2VtZW50EgAiCwoHUmVh
+      ZGVycxIAIgsKB1dyaXRlcnMSACIKCgZBZG1pbnMSABrCARK/AQoLQXBwbGljYXRpb24SrwEIARKq
+      AQoHb3JnMk1TUBKeAQgBGgcKA01TUBIAGlIKC0FuY2hvclBlZXJzEkMSOQo3CjJwZWVyMC5vcmcy
+      LW5ldC5vcmcyLW5ldC5zdGFnaW5nLmtsdXN0ZXIuZW11bHlhLmNvbRD7QRoGQWRtaW5zIg8KC0Vu
+      ZG9yc2VtZW50EgAiCwoHUmVhZGVycxIAIgsKB1dyaXRlcnMSACIKCgZBZG1pbnMSACoGQWRtaW5z
+
