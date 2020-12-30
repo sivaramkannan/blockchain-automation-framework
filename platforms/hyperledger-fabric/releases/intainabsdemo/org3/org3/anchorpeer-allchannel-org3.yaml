@@ -1,0 +1,48 @@
+apiVersion: helm.fluxcd.io/v1
+kind: HelmRelease
+metadata:
+  name: anchorpeer-allchannel-org3
+  namespace: org3-net
+  annotations:
+    fluxcd.io/automated: "false"
+spec:
+  releaseName: anchorpeer-allchannel-org3
+  chart:
+    git: git@github.com:sivaramkannan/blockchain-automation-framework.git
+    ref: intainabsdemo
+    path: platforms/hyperledger-fabric/charts/anchorpeer
+  values:
+    metadata:
+      namespace: org3-net
+      images:
+        fabrictools: hyperledger/fabric-tools:2.2.0
+        alpineutils: index.docker.io/hyperledgerlabs/alpine-utils:1.0
+
+    peer:
+      name: peer0
+      address: peer0.org3-net:7051
+      localmspid: org3MSP
+      loglevel: debug
+      tlsstatus: true
+
+    vault:
+      role: vault-role
+      address: http://159.89.141.74:8200
+      authpath: org3-net-auth
+      adminsecretprefix: secret/crypto/peerOrganizations/org3-net/users/admin
+      orderersecretprefix: secret/crypto/peerOrganizations/org3-net/orderer
+      serviceaccountname: vault-auth
+      imagesecretname: regcred
+
+    channel:
+      name: allchannel      
+    orderer:
+      address: orderer1.ordorg-net:7050
+    anchorstx: |-
+      CtMCChgKFggCGgYIptKw/wUiCmFsbGNoYW5uZWwStgIKswIKCmFsbGNoYW5uZWwSYBJeCgtBcHBs
+      aWNhdGlvbhJPCAESSwoHb3JnM01TUBJAGgcKA01TUBIAIg8KC0VuZG9yc2VtZW50EgAiCwoHUmVh
+      ZGVycxIAIgsKB1dyaXRlcnMSACIKCgZBZG1pbnMSABrCARK/AQoLQXBwbGljYXRpb24SrwEIARKq
+      AQoHb3JnM01TUBKeAQgBGlIKC0FuY2hvclBlZXJzEkMSOQo3CjJwZWVyMC5vcmczLW5ldC5vcmcz
+      LW5ldC5zdGFnaW5nLmtsdXN0ZXIuZW11bHlhLmNvbRD7QRoGQWRtaW5zGgcKA01TUBIAIg8KC0Vu
+      ZG9yc2VtZW50EgAiCwoHUmVhZGVycxIAIgsKB1dyaXRlcnMSACIKCgZBZG1pbnMSACoGQWRtaW5z
+
