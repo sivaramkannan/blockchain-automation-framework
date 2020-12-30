@@ -1,0 +1,43 @@
+apiVersion: helm.fluxcd.io/v1
+kind: HelmRelease
+metadata:
+  name: org4-net-ca
+  namespace: org4-net
+  annotations:
+    fluxcd.io/automated: "false"
+spec:
+  releaseName: org4-net-ca
+  chart:
+    git: git@github.com:sivaramkannan/blockchain-automation-framework.git
+    ref: intainabsdemo
+    path: platforms/hyperledger-fabric/charts/ca    
+  values:
+    metadata:
+      namespace: org4-net
+      images:
+        alpineutils: index.docker.io/hyperledgerlabs/alpine-utils:1.0
+        ca: hyperledger/fabric-ca:1.4.8
+    server:
+      name: ca
+      tlsstatus: true
+      admin: org4-admin
+    storage:
+      storageclassname: org4sc
+      storagesize: 512Mi
+    vault:
+      role: vault-role
+      address: http://159.89.141.74:8200
+      authpath: org4-net-auth
+      secretcert: secret/crypto/peerOrganizations/org4-net/ca?ca.org4-net-cert.pem
+      secretkey: secret/crypto/peerOrganizations/org4-net/ca?org4-net-CA.key
+      secretadminpass: secret/credentials/org4-net/ca/org4?user
+      serviceaccountname: vault-auth
+      imagesecretname: regcred
+    service:
+      servicetype: ClusterIP
+      ports:
+        tcp:
+          port: 7054
+    proxy:
+      provider: haproxy
+      type: peer
