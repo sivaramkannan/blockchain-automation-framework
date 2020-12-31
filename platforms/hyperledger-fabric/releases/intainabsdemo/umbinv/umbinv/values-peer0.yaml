@@ -1,0 +1,63 @@
+apiVersion: helm.fluxcd.io/v1
+kind: HelmRelease
+metadata:
+  name: umbinv-peer0
+  namespace: umbinv-net
+  annotations:
+    fluxcd.io/automated: "false"
+spec:
+  releaseName: umbinv-peer0
+  chart:
+    git: git@github.com:sivaramkannan/blockchain-automation-framework.git
+    ref: intainabsdemo
+    path: platforms/hyperledger-fabric/charts/peernode    
+  values:
+    metadata:
+      namespace: umbinv-net
+      images:
+        couchdb: couchdb:3.1
+        peer: hyperledger/fabric-peer:2.2.0
+        alpineutils: index.docker.io/hyperledgerlabs/alpine-utils:1.0
+        
+    peer:
+      name: peer0
+      gossippeeraddress: peer0.umbinv-net:7051
+      gossipexternalendpoint: peer0.umbinv-net.umbinv.staging.intainabsdemo.emulya.com:8443
+      localmspid: umbinvMSP
+      loglevel: info
+      tlsstatus: true
+      builder: hyperledger/fabric-ccenv:2.2.0
+      couchdb:
+        username: umbinv-user
+
+    storage:
+      peer:
+        storageclassname: umbinvsc
+        storagesize: 10Gi
+      couchdb:
+        storageclassname: umbinvsc
+        storagesize: 10Gi
+
+    vault:
+      role: vault-role
+      address: http://159.89.141.74:8200
+      authpath: umbinv-net-auth
+      secretprefix: secret/crypto/peerOrganizations/umbinv-net/peers/peer0.umbinv-net
+      secretambassador: secret/crypto/peerOrganizations/umbinv-net/ambassador
+      serviceaccountname: vault-auth
+      imagesecretname: regcred
+      secretcouchdbpass: secret/credentials/umbinv-net/couchdb/umbinv?user
+
+    service:
+      servicetype: ClusterIP
+      ports:
+        grpc:
+          clusteripport: 7051
+        events:
+          clusteripport: 7053
+        couchdb:
+          clusteripport: 5984
+          
+    proxy:
+      provider: haproxy
+      external_url_suffix: umbinv.staging.intainabsdemo.emulya.com
