@@ -1,0 +1,63 @@
+apiVersion: helm.fluxcd.io/v1
+kind: HelmRelease
+metadata:
+  name: umbtru-peer0
+  namespace: umbtru-net
+  annotations:
+    fluxcd.io/automated: "false"
+spec:
+  releaseName: umbtru-peer0
+  chart:
+    git: git@github.com:sivaramkannan/baf-intain-fork.git
+    ref: intainabsdemo
+    path: platforms/hyperledger-fabric/charts/peernode    
+  values:
+    metadata:
+      namespace: umbtru-net
+      images:
+        couchdb: couchdb:3.1
+        peer: hyperledger/fabric-peer:2.2.0
+        alpineutils: index.docker.io/hyperledgerlabs/alpine-utils:1.0
+        
+    peer:
+      name: peer0
+      gossippeeraddress: peer0.umbtru-net:7051
+      gossipexternalendpoint: peer0.umbtru-net.umbtru.staging.intainabsdemo.emulya.com:8443
+      localmspid: umbtruMSP
+      loglevel: info
+      tlsstatus: true
+      builder: hyperledger/fabric-ccenv:2.2.0
+      couchdb:
+        username: umbtru-user
+
+    storage:
+      peer:
+        storageclassname: umbtrusc
+        storagesize: 10Gi
+      couchdb:
+        storageclassname: umbtrusc
+        storagesize: 10Gi
+
+    vault:
+      role: vault-role
+      address: http://138.197.214.57:8200
+      authpath: umbtru-net-auth
+      secretprefix: secret/crypto/peerOrganizations/umbtru-net/peers/peer0.umbtru-net
+      secretambassador: secret/crypto/peerOrganizations/umbtru-net/ambassador
+      serviceaccountname: vault-auth
+      imagesecretname: regcred
+      secretcouchdbpass: secret/credentials/umbtru-net/couchdb/umbtru?user
+
+    service:
+      servicetype: ClusterIP
+      ports:
+        grpc:
+          clusteripport: 7051
+        events:
+          clusteripport: 7053
+        couchdb:
+          clusteripport: 5984
+          
+    proxy:
+      provider: haproxy
+      external_url_suffix: umbtru.staging.intainabsdemo.emulya.com
