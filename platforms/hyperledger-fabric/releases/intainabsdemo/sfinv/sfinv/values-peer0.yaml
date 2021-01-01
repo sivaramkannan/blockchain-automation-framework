@@ -1,0 +1,63 @@
+apiVersion: helm.fluxcd.io/v1
+kind: HelmRelease
+metadata:
+  name: sfinv-peer0
+  namespace: sfinv-net
+  annotations:
+    fluxcd.io/automated: "false"
+spec:
+  releaseName: sfinv-peer0
+  chart:
+    git: git@github.com:sivaramkannan/baf-intain-fork.git
+    ref: intainabsdemo
+    path: platforms/hyperledger-fabric/charts/peernode    
+  values:
+    metadata:
+      namespace: sfinv-net
+      images:
+        couchdb: couchdb:3.1
+        peer: hyperledger/fabric-peer:2.2.0
+        alpineutils: index.docker.io/hyperledgerlabs/alpine-utils:1.0
+        
+    peer:
+      name: peer0
+      gossippeeraddress: peer0.sfinv-net:7051
+      gossipexternalendpoint: peer0.sfinv-net.sfinv.staging.intainabsdemo.emulya.com:8443
+      localmspid: sfinvMSP
+      loglevel: info
+      tlsstatus: true
+      builder: hyperledger/fabric-ccenv:2.2.0
+      couchdb:
+        username: sfinv-user
+
+    storage:
+      peer:
+        storageclassname: sfinvsc
+        storagesize: 10Gi
+      couchdb:
+        storageclassname: sfinvsc
+        storagesize: 10Gi
+
+    vault:
+      role: vault-role
+      address: http://138.197.214.57:8200
+      authpath: sfinv-net-auth
+      secretprefix: secret/crypto/peerOrganizations/sfinv-net/peers/peer0.sfinv-net
+      secretambassador: secret/crypto/peerOrganizations/sfinv-net/ambassador
+      serviceaccountname: vault-auth
+      imagesecretname: regcred
+      secretcouchdbpass: secret/credentials/sfinv-net/couchdb/sfinv?user
+
+    service:
+      servicetype: ClusterIP
+      ports:
+        grpc:
+          clusteripport: 7051
+        events:
+          clusteripport: 7053
+        couchdb:
+          clusteripport: 5984
+          
+    proxy:
+      provider: haproxy
+      external_url_suffix: sfinv.staging.intainabsdemo.emulya.com
